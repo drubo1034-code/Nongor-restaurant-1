@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', 'Noto Sans Bengali', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-[#0c0a09] text-stone-200;
+  }
+}
+
+@layer components {
+  .bento-card {
+    @apply rounded-3xl overflow-hidden flex flex-col border border-stone-800 transition-transform duration-200 relative bg-[#1c1917];
+  }
+  .accent-red {
+    background-color: #991b1b;
+    color: white;
+  }
+  .accent-yellow {
+    background-color: #d97706;
+    color: #fffbeb;
+  }
+  .accent-white {
+    background-color: #1c1917;
+    color: #e7e5e4;
+  }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+

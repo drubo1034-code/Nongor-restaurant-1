@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { 
+      // Emulating admin role with a specific email
+      return isSignedIn() && request.auth.token.email == 'drubo1034@gmail.com'; 
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['userId', 'items', 'totalPrice', 'status', 'createdAt', 'paymentMethod', 'customerPhone', 'deliveryAddress']) &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.items is list && data.items.size() <= 100 &&
+             data.totalPrice is number &&
+             data.status is string && data.status.size() <= 20 &&
+             data.paymentMethod is string && data.paymentMethod.size() <= 50 &&
+             data.customerPhone is string && data.customerPhone.size() <= 20 &&
+             data.deliveryAddress is string && data.deliveryAddress.size() <= 500 &&
+             data.createdAt == request.time &&
+             (!('trxId' in data) || (data.trxId is string && data.trxId.size() <= 100));
+    }
+
+    function isValidReview(data) {
+      return data.keys().hasAll(['userName', 'rating', 'comment', 'createdAt']) &&
+             data.userName is string && data.userName.size() <= 100 &&
+             data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+             data.comment is string && data.comment.size() <= 1000 &&
+             data.createdAt == request.time;
+    }
+
+    function isValidMenuItem(data) {
+      return data.keys().hasAll(['nameBn', 'nameEn', 'price', 'category', 'categoryId']) &&
+             data.nameBn is string && data.nameBn.size() <= 200 &&
+             data.nameEn is string && data.nameEn.size() <= 200 &&
+             data.price is string && data.price.size() <= 50 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.categoryId is string && data.categoryId.size() <= 100 &&
+             (!('createdAt' in data) || data.createdAt == request.time) &&
+             (!('updatedAt' in data) || data.updatedAt == request.time);
+    }
+
+    match /menuItems/{itemId} {
+      allow get, list: if true;
+      allow create: if isAdmin() && isValidId(itemId) && isValidMenuItem(incoming());
+      allow update: if isAdmin() && incoming().diff(existing()).affectedKeys().hasAny(['nameBn', 'nameEn', 'price', 'category', 'categoryId', 'updatedAt']) && isValidMenuItem(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      
+      allow create: if isSignedIn() && isValidId(orderId) && isValidOrder(incoming()) && incoming().status == 'pending';
+      
+      allow update: if isSignedIn() && isAdmin() &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['status']) &&
+                    incoming().status is string && incoming().status.size() <= 20;
+    }
+
+    match /reviews/{reviewId} {
+      allow get, list: if true;
+      allow create: if isValidId(reviewId) && isValidReview(incoming());
+    }
+  }
+}

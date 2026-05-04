@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "A food order",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array"
+        },
+        "totalPrice": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "completed", "cancelled"]
+        },
+        "createdAt": {
+          "type": "number"
+        },
+        "paymentMethod": {
+          "type": "string"
+        },
+        "trxId": {
+          "type": "string"
+        },
+        "customerPhone": {
+          "type": "string"
+        },
+        "deliveryAddress": {
+          "type": "string"
+        },
+        "whatsappNumber": {
+          "type": "string"
+        }
+      },
+      "required": ["userId", "items", "totalPrice", "status", "createdAt", "paymentMethod", "customerPhone", "deliveryAddress"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Customer reviews",
+      "type": "object",
+      "properties": {
+        "userName": {
+          "type": "string"
+        },
+        "rating": {
+          "type": "number"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "number"
+        }
+      },
+      "required": ["userName", "rating", "comment", "createdAt"]
+    },
+    "MenuItem": {
+      "title": "Menu Item",
+      "description": "Individual food items",
+      "type": "object",
+      "properties": {
+        "nameBn": { "type": "string" },
+        "nameEn": { "type": "string" },
+        "price": { "type": "string" },
+        "category": { "type": "string" },
+        "categoryId": { "type": "string" }
+      },
+      "required": ["nameBn", "nameEn", "price", "category", "categoryId"]
+    }
+  },
+  "firestore": {
+    "menuItems/{itemId}": {
+      "schema": "MenuItem",
+      "description": "Stores individual menu items."
+    },
+    "orders/{orderId}": {
+      "schema": "Order",
+      "description": "Stores user orders."
+    },
+    "reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Stores customer reviews."
+    }
+  }
+}
