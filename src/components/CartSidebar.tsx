@@ -8,6 +8,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 export default function CartSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [showSuccessAnim, setShowSuccessAnim] = useState(false);
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cod');
@@ -69,8 +70,18 @@ export default function CartSidebar() {
           
           const whatsappUrl = `https://wa.me/8801919671919?text=${encodeURIComponent(message)}`;
           window.open(whatsappUrl, '_blank');
+          
+          setShowSuccessAnim(true);
+          setTimeout(() => {
+              setShowSuccessAnim(false);
+              window.dispatchEvent(new CustomEvent('open-orders'));
+          }, 2500);
       } else {
-          alert('আপনার অর্ডারটি সফলভাবে কনফার্ম হয়েছে! ধন্যবাদ।');
+          setShowSuccessAnim(true);
+          setTimeout(() => {
+              setShowSuccessAnim(false);
+              window.dispatchEvent(new CustomEvent('open-orders'));
+          }, 2500);
       }
       
     } catch (err) {
@@ -290,6 +301,65 @@ export default function CartSidebar() {
               )}
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showSuccessAnim && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.5, y: 50, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              className="bg-[#1c1917] p-8 sm:p-10 rounded-3xl flex flex-col items-center shadow-2xl shadow-green-900/20 border border-stone-800 shrink-0 max-w-[90%] mx-auto"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
+                className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-5 shadow-lg shadow-green-500/50 shrink-0"
+              >
+                <motion.svg
+                  className="w-10 h-10 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.4, duration: 0.5 }}
+                >
+                  <motion.path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </motion.svg>
+              </motion.div>
+              <motion.h2 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="text-2xl sm:text-3xl font-bold text-white mb-2 text-center"
+              >
+                অর্ডার কনফার্ম!
+              </motion.h2>
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="text-stone-400 text-sm text-center"
+              >
+                আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে।
+              </motion.p>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </>

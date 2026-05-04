@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu as MenuIcon, X, Phone, Package } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import MyOrdersModal from "./MyOrdersModal";
@@ -6,6 +6,12 @@ import MyOrdersModal from "./MyOrdersModal";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenOrders = () => setIsOrdersOpen(true);
+    window.addEventListener('open-orders', handleOpenOrders);
+    return () => window.removeEventListener('open-orders', handleOpenOrders);
+  }, []);
 
   const navLinks = [
     { name: "হোম", href: "#home" },
